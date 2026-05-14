@@ -259,9 +259,9 @@ Four key measures calculated in Sigma for dashboard KPIs:
 
 ---
 
-## Dashboards
+## Dashboard
 
-Three interactive dashboard pages built in Sigma Computing, connected live to the Snowflake `TRANSFORMED_DATA` schema.
+Dashboard built in Sigma Computing, connected live to the Snowflake `TRANSFORMED_DATA` schema.
 
 ### Sales Overview Dashboard
 Provides a high-level view of sales performance against budget targets.
