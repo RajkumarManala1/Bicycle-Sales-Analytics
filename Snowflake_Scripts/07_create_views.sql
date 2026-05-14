@@ -1,71 +1,83 @@
--- ============================================
--- Script: 07_create_views.sql
--- Project: Bicycle Sales & Accessories Analytics 2025
--- Description: Creates analytics-ready views joining fact and dimension tables
---              These views serve as the data source for Sigma dashboards
--- ============================================
-
 USE DATABASE SALES_ANALYTICS_2025;
 USE SCHEMA TRANSFORMED_DATA;
+USE WAREHOUSE COMPUTE_WH;
 
 -- ============================================
--- View: Sales Overview (Fact + All Dimensions)
--- Purpose: Single denormalized view for Sigma dashboards
+-- VIEW: Sales Analytics (Fact + All Dimensions)
+-- Single denormalized view for Sigma dashboards
 -- ============================================
-
 CREATE OR REPLACE VIEW VW_SALES_ANALYTICS AS
 SELECT
-    -- Fact Sales columns
-    f.SalesOrderNumber,
-    f.SalesAmount,
-    f.OrderDateKey,
+    -- Fact Sales
+    f.SALESORDERNUMBER                  AS SalesOrderNumber,
+    f.SALESAMOUNT                       AS SalesAmount,
+    f.ORDERDATEKEY                      AS OrderDateKey,
 
-    -- Calendar columns
-    c."Date"            AS OrderDate,
-    c."Day"             AS OrderDay,
-    c."Month"           AS OrderMonth,
-    c.MonthShort        AS OrderMonthShort,
-    c.MonthNo           AS OrderMonthNo,
-    c."Quarter"         AS OrderQuarter,
-    c."Year"            AS OrderYear,
+    -- Calendar
+    c."Date"                            AS OrderDate,
+    c."Day"                             AS OrderDay,
+    c."Month"                           AS OrderMonth,
+    c.MONTHSHORT                        AS OrderMonthShort,
+    c.MONTHNO                           AS OrderMonthNo,
+    c."Quarter"                         AS OrderQuarter,
+    c."Year"                            AS OrderYear,
 
-    -- Customer columns
-    cu."Full Name"      AS CustomerName,
-    cu."First Name"     AS CustomerFirstName,
-    cu."Last Name"      AS CustomerLastName,
-    cu.Gender           AS CustomerGender,
-    cu."Customer City"  AS CustomerCity,
+    -- Customers
+    cu."Full Name"                      AS CustomerName,
+    cu."First Name"                     AS CustomerFirstName,
+    cu."Last Name"                      AS CustomerLastName,
+    cu.GENDER                           AS CustomerGender,
+    cu."Customer City"                  AS CustomerCity,
 
-    -- Product columns
-    p."Product Name"        AS ProductName,
-    p."Sub Category"        AS ProductSubCategory,
-    p."Product Category"    AS ProductCategory,
-    p."Product Color"       AS ProductColor,
-    p."Product Size"        AS ProductSize,
-    p."Product Line"        AS ProductLine,
-    p."Product Model Name"  AS ProductModelName,
-    p."Product Status"      AS ProductStatus
+    -- Products
+    p."Product Name"                    AS ProductName,
+    p."Sub Category"                    AS ProductSubCategory,
+    p."Product Category"                AS ProductCategory,
+    p."Product Color"                   AS ProductColor,
+    p."Product Size"                    AS ProductSize,
+    p."Product Line"                    AS ProductLine,
+    p."Product Model Name"              AS ProductModelName,
+    p."Product Status"                  AS ProductStatus
 
 FROM
     FACT_SALES f
-LEFT JOIN DIM_CALENDAR c    ON f.OrderDateKey = c.DateKey
-LEFT JOIN DIM_CUSTOMERS cu  ON f.CustomerKey = cu.CustomerKey
-LEFT JOIN DIM_PRODUCTS p    ON f.ProductKey = p.ProductKey;
+LEFT JOIN
+    DIM_CALENDAR c
+    ON f.ORDERDATEKEY = c.DATEKEY
+LEFT JOIN
+    DIM_CUSTOMERS cu
+    ON f.CUSTOMERKEY = cu.CUSTOMERKEY
+LEFT JOIN
+    DIM_PRODUCTS p
+    ON f.PRODUCTKEY = TRY_TO_NUMBER(p.PRODUCTKEY);
 
 -- ============================================
--- View: Budget by Month
--- Purpose: Monthly budget targets for comparison
+-- VIEW: Budget by Month
 -- ============================================
-
 CREATE OR REPLACE VIEW VW_BUDGET_BY_MONTH AS
 SELECT
-    b.Date          AS BudgetDate,
-    b.Budget        AS BudgetAmount
+    b.DATE                              AS BudgetDate,
+    b.BUDGET                            AS BudgetAmount
 FROM
     RAW_DATA.FACT_BUDGET b;
 
--- Verify views
-SELECT COUNT(*) AS total_rows FROM VW_SALES_ANALYTICS;
+-- ============================================
+-- VALIDATION
+-- ============================================
+
+-- 1. Row count
+SELECT 'VW_SALES_ANALYTICS' AS view_name, COUNT(*) AS total_rows FROM VW_SALES_ANALYTICS;
+
+-- 2. Preview sales data with all dimensions
 SELECT * FROM VW_SALES_ANALYTICS LIMIT 10;
 
+-- 3. Verify budget data
 SELECT * FROM VW_BUDGET_BY_MONTH;
+
+-- 4. Verify joins worked (no orphan records)
+SELECT
+    COUNT(*) AS total_rows,
+    COUNT(OrderDate) AS has_date,
+    COUNT(CustomerName) AS has_customer,
+    COUNT(ProductName) AS has_product
+FROM VW_SALES_ANALYTICS;
