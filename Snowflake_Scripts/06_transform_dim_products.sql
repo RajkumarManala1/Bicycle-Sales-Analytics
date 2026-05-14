@@ -1,58 +1,65 @@
--- ============================================
--- Script: 06_transform_dim_products.sql
--- Project: Bicycle Sales & Accessories Analytics 2025
--- Description: Transforms raw DIM_PRODUCT + DIM_PRODUCT_SUBCATEGORY + DIM_PRODUCT_CATEGORY
---              into cleansed DIM_PRODUCTS
--- Source: RAW_DATA.DIM_PRODUCT (606 rows | 36 columns)
---         RAW_DATA.DIM_PRODUCT_SUBCATEGORY (37 rows | 6 columns)
---         RAW_DATA.DIM_PRODUCT_CATEGORY (4 rows | 5 columns)
--- Target: TRANSFORMED_DATA.DIM_PRODUCTS (11 columns)
--- Transformations:
---   1. JOIN with DIM_PRODUCT_SUBCATEGORY to get subcategory names
---   2. JOIN with DIM_PRODUCT_CATEGORY to get category names
---   3. HANDLE NULLs: Status NULL → 'Outdated'
---   4. DROP LargePhoto binary column and multi-language columns
---   5. SELECT only relevant columns (36 → 11)
--- ============================================
+-- Transformations Applied:
+-- 1. JOIN: DIM_PRODUCT + DIM_PRODUCT_SUBCATEGORY on ProductSubcategoryKey
+-- 2. JOIN: DIM_PRODUCT_SUBCATEGORY + DIM_PRODUCT_CATEGORY on ProductCategoryKey
+-- 3. NULL HANDLING: Product Status NULL → 'Outdated' using COALESCE
+-- 4. COLUMN SELECTION: 35 columns → 11 columns
 
 USE DATABASE SALES_ANALYTICS_2025;
 USE SCHEMA TRANSFORMED_DATA;
+USE WAREHOUSE COMPUTE_WH;
 
 CREATE OR REPLACE TABLE DIM_PRODUCTS AS
 SELECT
-    p.ProductKey                                    AS ProductKey,
-    p.ProductAlternateKey                           AS ProductItemCode,
-    p.EnglishProductName                            AS "Product Name",
-    ps.EnglishProductSubcategoryName                AS "Sub Category",
-    pc.EnglishProductCategoryName                   AS "Product Category",
-    p.Color                                         AS "Product Color",
-    p.Size                                          AS "Product Size",
-    p.ProductLine                                   AS "Product Line",
-    p.ModelName                                     AS "Product Model Name",
-    p.EnglishDescription                            AS "Product Description",
-    COALESCE(p.Status, 'Outdated')                  AS "Product Status"
+    p.PRODUCTKEY                                    AS ProductKey,
+    p.PRODUCTALTERNATEKEY                           AS ProductItemCode,
+    p.ENGLISHPRODUCTNAME                            AS "Product Name",
+    ps.ENGLISHPRODUCTSUBCATEGORYNAME                AS "Sub Category",
+    pc.ENGLISHPRODUCTCATEGORYNAME                   AS "Product Category",
+    p.COLOR                                         AS "Product Color",
+    p.SIZE                                          AS "Product Size",
+    p.PRODUCTLINE                                   AS "Product Line",
+    p.MODELNAME                                     AS "Product Model Name",
+    p.ENGLISHDESCRIPTION                            AS "Product Description",
+    CASE
+        WHEN p.STATUS IS NULL OR p.STATUS = 'NULL' THEN 'Outdated'
+        ELSE p.STATUS
+    END                                             AS "Product Status"
 FROM
     RAW_DATA.DIM_PRODUCT AS p
 LEFT JOIN
     RAW_DATA.DIM_PRODUCT_SUBCATEGORY AS ps
-    ON p.ProductSubcategoryKey = ps.ProductSubcategoryKey
+    ON TRY_CAST(p.PRODUCTSUBCATEGORYKEY AS NUMBER) = ps.PRODUCTSUBCATEGORYKEY
 LEFT JOIN
     RAW_DATA.DIM_PRODUCT_CATEGORY AS pc
-    ON ps.ProductCategoryKey = pc.ProductCategoryKey
+    ON ps.PRODUCTCATEGORYKEY = pc.PRODUCTCATEGORYKEY
 ORDER BY
-    p.ProductKey ASC;
+    TRY_CAST(p.PRODUCTKEY AS NUMBER) ASC;
+    
+ 
+-- VALIDATION QUERIES
+-- ============================================
 
--- Verify row count and sample data
-SELECT COUNT(*) AS total_rows FROM DIM_PRODUCTS;
+SELECT 'DIM_PRODUCTS' AS table_name, COUNT(*) AS total_rows FROM DIM_PRODUCTS;
+
+-- 2. Preview sample data
 SELECT * FROM DIM_PRODUCTS LIMIT 10;
 
--- Verify product category distribution
+-- 3. Verify product category distribution
 SELECT "Product Category", COUNT(*) AS product_count
 FROM DIM_PRODUCTS
 GROUP BY "Product Category"
 ORDER BY product_count DESC;
 
--- Verify NULL handling for Product Status
+-- 4. Verify NULL handling for Product Status
 SELECT "Product Status", COUNT(*) AS count
 FROM DIM_PRODUCTS
 GROUP BY "Product Status";
+
+-- 5. Verify subcategory breakdown
+SELECT "Product Category", "Sub Category", COUNT(*) AS product_count
+FROM DIM_PRODUCTS
+WHERE "Product Category" IS NOT NULL
+GROUP BY "Product Category", "Sub Category"
+ORDER BY "Product Category", product_count DESC;
+
+SELECT * FROM SALES_ANALYTICS_2025.TRANSFORMED_DATA.DIM_PRODUCTS;
