@@ -266,7 +266,7 @@ Dashboard built in Sigma Computing, connected live to the Snowflake `TRANSFORMED
 ### Sales Overview Dashboard
 Provides a high-level view of sales performance against budget targets.
 
-![Sales Overview Dashboard](Screenshots/Sales_Overview_Dashboard.png)
+![Sales Overview Dashboard](https://github.com/RajkumarManala1/Bicycle-Sales-Analytics/blob/main/Screenshots/Sales%20Overview%20Dashboard.png?raw=true)
 
 
 ---
@@ -404,7 +404,7 @@ Create a Sigma workbook with three pages — Sales Overview, Customer Details, a
 ## Author
 
 **Raj Kumar Manala**
-- LinkedIn: [linkedin.com/in/rajkumarmanala](https://linkedin.com/in/rajkumarmanala)
+- LinkedIn: [linkedin.com/in/rajkumarmanala](https://linkedin.com/in/raj-kumar-manala-ab1b78134)
 - Portfolio: [rajkumarmanala.com](https://rajkumarmanala.com)
 
 ---
