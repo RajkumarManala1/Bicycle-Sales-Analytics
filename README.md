@@ -18,19 +18,8 @@ The project follows a **Medallion Architecture** pattern:
 
 ## Architecture
 
-```
-┌─────────────────────┐     ┌──────────────────────────────────────────────────┐     ┌─────────────────────┐
-│                     │     │              SNOWFLAKE                           │     │                     │
-│   AdventureWorks    │     │                                                  │     │  SIGMA COMPUTING    │
-│   DW 2025           │     │  ┌──────────────┐    ┌───────────────────────┐   │     │                     │
-│   (SQL Server 2025) │────▶│  │  RAW_DATA     │───▶│  TRANSFORMED_DATA     │──▶│────▶│  Live Dashboards    │
-│                     │     │  │  (Bronze)     │    │  (Silver/Gold)        │   │     │  & Reports          │
-│   Docker Container  │     │  │              │    │                       │   │     │                     │
-│   on macOS (ARM64)  │     │  │  8 Raw Tables │    │  4 Curated Tables     │   │     │  3 Dashboard Pages  │
-│                     │     │  │              │    │  + Star Schema        │   │     │                     │
-└─────────────────────┘     │  └──────────────┘    └───────────────────────┘   │     └─────────────────────┘
-                            └──────────────────────────────────────────────────┘
-```
+
+![Architecture Overview](https://github.com/RajkumarManala1/Bicycle-Sales-Analytics/blob/main/architecture%20diagram.png?raw=true)
 
 ---
 
