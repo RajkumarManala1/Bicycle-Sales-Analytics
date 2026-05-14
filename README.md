@@ -268,40 +268,6 @@ Provides a high-level view of sales performance against budget targets.
 
 ![Sales Overview Dashboard](Screenshots/Sales_Overview_Dashboard.png)
 
-**Components:**
-- Sales vs Budget KPI card with variance and attainment percentage
-- Sales by Product Category (donut chart — Bikes, Accessories, Clothing)
-- Sales and Budget by Month (dual-line trend chart)
-- Sales by Top 10 Customers (horizontal bar chart)
-- Sales by Top 10 Products (horizontal bar chart)
-- Sales by Customer City (geographic map)
-- Interactive filters: Year, Month, Customer City, Sub Category, Product Category, Product Name
-
-### Customer Details Dashboard
-Deep dive into customer demographics, purchasing behavior, and geographic distribution.
-
-![Customer Details Dashboard](Screenshots/Customer_Details_Dashboard.png)
-
-**Components:**
-- Sales and Budget KPI cards
-- Sales by Customer City (geographic map)
-- Sales by Top 10 Customers (horizontal bar chart)
-- Sales and Budget by Month (dual-line trend chart)
-- Customer Sales by Month (pivot table with row totals)
-- Interactive filters: Year, Month, Customer City, Sub Category, Product Category, Product Name
-
-### Product Details Dashboard
-Product performance analysis by category, subcategory, and individual product.
-
-![Product Details Dashboard](Screenshots/Product_Details_Dashboard.png)
-
-**Components:**
-- Sales and Budget KPI cards
-- Sales by Customer City (geographic map)
-- Sales by Top 10 Products (horizontal bar chart)
-- Sales and Budget by Month (dual-line trend chart)
-- Product Category Sales by Month (pivot table with row totals)
-- Interactive filters: Year, Month, Customer City, Sub Category, Product Category, Product Name
 
 ---
 
